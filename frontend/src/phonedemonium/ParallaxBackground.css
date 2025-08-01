@@ -1,0 +1,32 @@
+.video-container {
+    width: 640px;
+    height: 360px;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.video-background {
+    width: 120%;
+    height: 120%;
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    object-fit: cover;
+    animation: zoomRotate 30s ease-in-out infinite;
+    transform-origin: center center;
+}
+
+/* 영상 확대 + 회전 효과 */
+@keyframes zoomRotate {
+    0% {
+        transform: scale(1.1) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.15) rotate(1.5deg);
+    }
+    100% {
+        transform: scale(1.1) rotate(0deg);
+    }
+}

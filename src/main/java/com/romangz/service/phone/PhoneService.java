@@ -1,4 +1,4 @@
-package com.romangz.service;
+package com.romangz.service.phone;
 
 import com.romangz.entity.phone.TradePhone;
 import com.romangz.repository.PhoneRepository;
