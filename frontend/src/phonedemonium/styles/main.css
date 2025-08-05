@@ -1,0 +1,82 @@
+/* styles/main.css */
+
+@keyframes galaxyFlow {
+    0% { transform: translateX(0) translateY(0) rotate(0deg); }
+    25% { transform: translateX(-5px) translateY(-10px) rotate(0.5deg); }
+    50% { transform: translateX(-10px) translateY(-5px) rotate(-0.5deg); }
+    75% { transform: translateX(5px) translateY(-15px) rotate(0.3deg); }
+    100% { transform: translateX(0) translateY(0) rotate(0deg); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+button:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+input:focus {
+    box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    /* 아래 선택자들은 원래 JSX에서 inline style 문자열에 맞춰져 있어 CSS용으로 약간 조정 필요 */
+
+    /* font-size 조정 */
+    .font-48 {
+        font-size: 32px !important;
+    }
+    .font-36 {
+        font-size: 24px !important;
+    }
+
+    /* padding 조정 */
+    .padding-60-40 {
+        padding: 30px 20px !important;
+    }
+
+    /* gap 조정 및 flex-direction 변경 */
+    .gap-30 {
+        gap: 20px !important;
+        flex-direction: column;
+    }
+
+    /* 버튼 너비 조정 */
+    .btn-minwidth-180 {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+
+    /* grid-template-columns 조정 */
+    .grid-cols-300 {
+        grid-template-columns: 1fr !important;
+    }
+    .grid-cols-120 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .font-32 {
+        font-size: 24px !important;
+    }
+    .font-24 {
+        font-size: 18px !important;
+    }
+    .padding-30-20 {
+        padding: 20px 15px !important;
+    }
+}
