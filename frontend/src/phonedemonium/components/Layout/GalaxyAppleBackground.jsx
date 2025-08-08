@@ -129,20 +129,22 @@ const GalaxyAppleBackground = () => {
 
             {/* 움직이는 사과들 */}
             {applePositions.map((apple, index) => (
-                <div
+                <img
                     key={index}
+                    src="/image/phone/apple.png" // 사과 이미지 경로 (예시)
+                    alt="사과"
                     style={{
                         position: 'fixed',
                         left: `${apple.x}%`,
                         top: `${apple.y}%`,
-                        fontSize: '24px',
+                        width: '50px',
+                        height: '50px',
                         animation: `float ${3 + index}s ease-in-out infinite`,
-                        zIndex: 1,
-                        opacity: 0.7,
+                        zIndex: 0,
+                        opacity: 0.8,
+                        pointerEvents: 'none', // 클릭 방지 (선택)
                     }}
-                >
-                    🍎
-                </div>
+                />
             ))}
         </div>
     );

@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public class ImageStorageService {
 
-    private static final String BASE_DIR = "C:/ITWILL/final_project/image/analyze";
+    private static final String BASE_DIR = "C:/ITWILL/final_project/image/estimate";
 
     public String saveImage(MultipartFile file, String type) throws IOException {
         // type은 "front" 또는 "end"
@@ -43,7 +43,7 @@ public class ImageStorageService {
         file.transferTo(savedFile);
 
         // 반환 경로 (예: /analyze/2025/front/uuid.jpg)
-        return "/analyze/" + year + "/" + type + "/" + filename;
+        return "/estimate/" + year + "/" + type + "/" + filename;
     }
 
     // 파일 확장자 추출

@@ -18,21 +18,38 @@ public class PhoneService {
     @Autowired
     private PbtiTestRepository pbtiTestRepository;
     @Autowired
-    private PhoneModelRepository phoneListRepository;
+    private PhoneModelRepository phoneModelRepository;
 
+    //휴대폰 견적 분석 - 기기정보
+    public List<Object[]> getEstimanteMenuInfo(String key, String value) {
+        List<Object[]> result = new ArrayList<>();
+        if (Objects.equals(key, "company")){
+            result = phoneModelRepository.getEstiamteMenuCompany();
+        }else if(Objects.equals(key, "series")){
+            result = phoneModelRepository.getEstiamteMenuSeries(Short.parseShort(value));
+        }else if(Objects.equals(key, "model")){
+            result = phoneModelRepository.getEstiamteMenuModel(value);
+        }else if(Objects.equals(key, "volume")){
+            result = phoneModelRepository.getEstiamteMenuVolume(Integer.parseInt(value));
+        }
+        return result;
+    }
+
+    //거래된 폰 정보
     public List<TradePhone> getTradePhoneList(String keyword) {
         return tradephoneRepository.findByModelContaining(keyword);
     }
 
+    //pbti
     public Map<String, Object> getPbtiResult(String pcode) {
         Map<String, Object> resultMap = new HashMap<>();
         Optional<PbtiTest> pbtiObj = pbtiTestRepository.findFirstByCodeContaining(pcode);
 
         if (pbtiObj.isPresent()) {
             PbtiTest pbti = pbtiObj.get();
-            String phoneStr = pbti.getPhone_str();
+            String idxStr = pbti.getIdx_str();
 
-            List<Object[]> resultModel = pbtiTestRepository.getPbtiPhoneByRaw(phoneStr);
+            List<Object[]> resultModel = pbtiTestRepository.getPbtiPhoneByRaw(idxStr);
             resultMap.put("pbti", pbti);
             resultMap.put("resultModel", resultModel);
         } else {

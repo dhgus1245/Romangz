@@ -1,25 +1,105 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Camera, Smartphone, Star, TrendingUp, Search } from 'lucide-react';
 
 const EstimateSection = () => {
+    // 시세검색 SelectBox
+    const [companies, setCompanies] = useState([{ idx: 0, name: '선택해 주세요' }]);
+    const [selectedCompanyIdx, setSelectedCompanyIdx] = useState(0);
+    const [series, setSeries] = useState([{ idx: 0, name: '선택해 주세요' }]);
+    const [selectedSeriesIdx, setSelectedSeriesIdx] = useState(0);
+    const [models, setModels] = useState([{ idx: 0, name: '선택해 주세요' }]);
+    const [selectedModelIdx, setSelectedModelIdx] = useState(0);
+    const [volumes, setVolumes] = useState([{ idx: 0, name: '선택해 주세요' }]);
+    const [selectedVolumeIdx, setSelectedVolumeIdx] = useState(0);
+
+    // 이미지
     const [frontImage, setFrontImage] = useState(null);
     const [backImage, setBackImage] = useState(null);
-    const [manufacturer, setManufacturer] = useState('Apple');
-    const [phoneModel, setPhoneModel] = useState('iPhone 14');
-    const [storage, setStorage] = useState('128GB');
-    const [years, setYears] = useState('1년');
+    // 분석결과
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [results, setResults] = useState(null);
 
-    const manufacturers = ['Apple', 'Samsung', 'Google', 'LG'];
-    const phoneModels = {
-        'Apple': ['iPhone 11', 'iPhone 12', 'iPhone 13', 'iPhone 14', 'iPhone 15'],
-        'Samsung': ['Galaxy S21', 'Galaxy S22', 'Galaxy S23', 'Galaxy S24', 'Galaxy Note 20'],
-        'Google': ['Pixel 6', 'Pixel 7', 'Pixel 8'],
-        'LG': ['V50', 'V60', 'Wing']
+
+    //페이지 로딩 될 때 한 번만 실행
+    useEffect(() => {
+        fetchEstimateMenu({ key: "company", value: "" });
+    }, []);
+
+    //휴대폰 견적 메뉴 정보 GET
+    const fetchEstimateMenu = async (obj) => {
+        try {
+            const query = new URLSearchParams(obj).toString();
+            const response = await fetch(`http://192.168.16.1:8080/phone/estimate_menu?${query}`, {
+                method: "GET",
+            });
+            if (!response.ok) throw new Error("서버 오류");
+            const result = await response.json();
+
+            if (obj.key === "company") {
+                const companies = result.map(([idx, name]) => ({ idx, name}));
+                setCompanies([{ idx: 0, name: "선택해 주세요" }, ...companies]);
+                // console.log("company : ", result);
+            }else if(obj.key === "series") {
+                const models = result.map(([idx, name]) => ({ idx, name}));
+                setSeries([{ idx: 0, name: "선택해 주세요" }, ...models]);
+                // console.log("series : ", result);
+            }else if(obj.key === "model") {
+                const models = result.map(([idx, name]) => ({ idx, name}));
+                setModels([{ idx: 0, name: "선택해 주세요" }, ...models]);
+                console.log("model : ", result);
+            }else if(obj.key === "volume") {
+                const volumes = result.map(([name], idx) => ({ idx: idx + 1, name }));
+                setVolumes([{ idx: 0, name: "선택해 주세요" }, ...volumes]);
+                // console.log(volumes);
+            }
+
+        } catch (error) {
+            console.error("제조사 불러오기 실패:", error);
+        }
     };
-    const storageOptions = ['64GB', '128GB', '256GB', '512GB', '1TB'];
-    const yearOptions = ['1년', '2년', '3년', '4년', '5년 이상'];
+
+    // SELECT 초기화
+    const handleSelectChange = (e, reset_idx) => {
+
+        const upperReset = reset_idx.toUpperCase();
+        let key = ""
+        const idx = Number(e.target.value);
+
+        if(upperReset === "T"){//전체리셋
+            key = "company";
+            setSelectedCompanyIdx(0);
+            setSelectedModelIdx(0);
+        }else if(upperReset === "C"){ //제조사 변경
+            key = "series";
+            setSelectedCompanyIdx(idx);
+            setModels([{ idx: 0, name: "선택해 주세요" }]);
+            setVolumes([{ idx: 0, name: "선택해 주세요" }]);
+            fetchEstimateMenu({ key: key, value: idx }).then(r => {
+                setSelectedSeriesIdx(0);
+                setSelectedModelIdx(0);
+                setSelectedVolumeIdx(0);
+            });
+        }else if(upperReset === "S"){ //시리즈 변경
+            key = "model";
+            setSelectedSeriesIdx(idx);
+            const selectedOption = e.target.selectedOptions[0];
+            const seriesName = selectedOption.getAttribute("data-name");
+            setVolumes([{ idx: 0, name: "선택해 주세요" }]);
+            fetchEstimateMenu({ key: key, value: seriesName }).then(r => {
+                setSelectedModelIdx(0);
+                setSelectedVolumeIdx(0);
+            });
+        }else if(upperReset === "M"){ //모델 변경
+            key = "volume";
+            setSelectedModelIdx(idx);
+            setVolumes([{ idx: 0, name: "선택해 주세요" }]);
+            fetchEstimateMenu({key: key, value: idx}).then(r =>{
+                setSelectedVolumeIdx(0);
+            });
+        }else if (upperReset === "V") { //용량 변경
+            setSelectedVolumeIdx(idx)
+        }
+    };
 
     const handleImageUpload = (type, event) => {
         const file = event.target.files[0];
@@ -48,38 +128,51 @@ const EstimateSection = () => {
         return new File([u8arr], filename, { type: mime });
     };
 
-    const analyzePhone = async () => {
+    //버튼 활성화
+    const isEstimateButtonDisabled = () => {
+        return (
+            isAnalyzing ||
+            selectedCompanyIdx === 0 ||
+            selectedModelIdx === 0 ||
+            selectedVolumeIdx === 0 ||
+            selectedSeriesIdx === 0 ||
+            !frontImage ||
+            !backImage
+        );
+    };
+
+    const estimatePhone = async () => {
         if (!frontImage || !backImage) {
             alert('앞면과 뒷면 사진을 모두 업로드해주세요.');
             return;
         }
 
         setIsAnalyzing(true);
+        //용량
+        const selectElem = document.getElementById("selected_volume");
+        const selectedOption = selectElem.options[selectElem.selectedIndex];
+        const volumeName = selectedOption.getAttribute("data-name");
 
-        // 실제 API 호출 (현재 주석 처리)
-        /*
         const formData = new FormData();
         formData.append("frontImage", dataURLtoFile(frontImage, "front.jpg"));
         formData.append("backImage", dataURLtoFile(backImage, "back.jpg"));
-        formData.append("manufacturer", manufacturer);
-        formData.append("phoneModel", phoneModel);
-        formData.append("storage", storage);
-        formData.append("years", years);
+        formData.append("model", selectedModelIdx);
+        formData.append("volume", volumeName);
 
         try {
-            const response = await fetch("http://192.168.16.1:8080/phone/analyze", {
+            const response = await fetch("http://192.168.16.1:8080/phone/estimate", {
                 method: "POST",
                 body: formData,
             });
 
             if (!response.ok) throw new Error("서버 오류");
             const result = await response.json();
+            console.log(result);
             setResults(result);
         } catch (error) {
             console.error("분석 실패:", error);
             alert("서버와의 통신 중 오류가 발생했습니다.");
         }
-        */
 
         // 임시 결과 데이터
         setTimeout(() => {
@@ -218,7 +311,7 @@ const EstimateSection = () => {
                             fontSize: '14px',
                             lineHeight: '1.6'
                         }}>
-                            {manufacturer} {phoneModel} ({storage}, {years} 사용)
+                            {/*{manufacturer} {phoneModel} ({storage}, {years} 사용)*/}
                         </p>
                     </div>
 
@@ -471,24 +564,22 @@ const EstimateSection = () => {
                                     color: '#374151',
                                     marginBottom: '6px'
                                 }}>제조사</label>
-                                <select
-                                    value={manufacturer}
-                                    onChange={(e) => {
-                                        setManufacturer(e.target.value);
-                                        setPhoneModel(phoneModels[e.target.value][0]);
-                                    }}
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        border: '1px solid #d1d5db',
-                                        borderRadius: '8px',
-                                        fontSize: '14px',
-                                        backgroundColor: 'white',
-                                        outline: 'none'
-                                    }}
+                                <select value={selectedCompanyIdx}
+                                        onChange={(e) => handleSelectChange(e, "C")}
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '8px',
+                                            fontSize: '14px',
+                                            backgroundColor: 'white',
+                                            outline: 'none'
+                                        }}
                                 >
-                                    {manufacturers.map(brand => (
-                                        <option key={brand} value={brand}>{brand}</option>
+                                    {companies.map((company) => (
+                                        <option key={company.idx} value={company.idx}>
+                                            {company.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -500,10 +591,10 @@ const EstimateSection = () => {
                                     fontWeight: '500',
                                     color: '#374151',
                                     marginBottom: '6px'
-                                }}>모델명</label>
+                                }}>시리즈</label>
                                 <select
-                                    value={phoneModel}
-                                    onChange={(e) => setPhoneModel(e.target.value)}
+                                    value={selectedSeriesIdx}
+                                    onChange={(e) => handleSelectChange(e, "S")}
                                     style={{
                                         width: '100%',
                                         padding: '12px',
@@ -514,8 +605,10 @@ const EstimateSection = () => {
                                         outline: 'none'
                                     }}
                                 >
-                                    {phoneModels[manufacturer].map(model => (
-                                        <option key={model} value={model}>{model}</option>
+                                    {series.map((series) => (
+                                        <option key={series.idx} value={series.idx} data-name={series.name}>
+                                            {series.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -533,10 +626,10 @@ const EstimateSection = () => {
                                     fontWeight: '500',
                                     color: '#374151',
                                     marginBottom: '6px'
-                                }}>용량</label>
+                                }}>모델명</label>
                                 <select
-                                    value={storage}
-                                    onChange={(e) => setStorage(e.target.value)}
+                                    value={selectedModelIdx}
+                                    onChange={(e) => handleSelectChange(e, "M")}
                                     style={{
                                         width: '100%',
                                         padding: '12px',
@@ -547,12 +640,13 @@ const EstimateSection = () => {
                                         outline: 'none'
                                     }}
                                 >
-                                    {storageOptions.map(option => (
-                                        <option key={option} value={option}>{option}</option>
+                                    {models.map((model) => (
+                                        <option key={model.idx} value={model.idx}>
+                                            {model.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
-
                             <div>
                                 <label style={{
                                     display: 'block',
@@ -560,10 +654,11 @@ const EstimateSection = () => {
                                     fontWeight: '500',
                                     color: '#374151',
                                     marginBottom: '6px'
-                                }}>사용년도</label>
+                                }}>용량</label>
                                 <select
-                                    value={years}
-                                    onChange={(e) => setYears(e.target.value)}
+                                    id={"selected_volume"}
+                                    value={selectedVolumeIdx}
+                                    onChange={(e) => handleSelectChange(e, "V")}
                                     style={{
                                         width: '100%',
                                         padding: '12px',
@@ -574,8 +669,10 @@ const EstimateSection = () => {
                                         outline: 'none'
                                     }}
                                 >
-                                    {yearOptions.map(option => (
-                                        <option key={option} value={option}>{option}</option>
+                                    {volumes.map((volume) => (
+                                        <option key={volume.idx} value={volume.idx} data-name={volume.name}>
+                                            {volume.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -583,7 +680,7 @@ const EstimateSection = () => {
                     </div>
 
                     {/* 사진 업로드 */}
-                    <div style={{ marginBottom: '28px' }}>
+                    <div style={{marginBottom: '28px'}}>
                         <h3 style={{
                             fontSize: '18px',
                             fontWeight: '600',
@@ -593,7 +690,7 @@ const EstimateSection = () => {
                             alignItems: 'center',
                             gap: '8px'
                         }}>
-                            <Camera style={{ width: '20px', height: '20px', color: '#667eea' }} />
+                            <Camera style={{width: '20px', height: '20px', color: '#667eea'}}/>
                             사진 업로드
                         </h3>
 
@@ -610,7 +707,7 @@ const EstimateSection = () => {
                                     color: '#374151',
                                     marginBottom: '8px'
                                 }}>앞면 사진</label>
-                                <ImageUploadBox type="front" image={frontImage} onUpload={handleImageUpload} />
+                                <ImageUploadBox type="front" image={frontImage} onUpload={handleImageUpload}/>
                             </div>
 
                             <div>
@@ -628,11 +725,11 @@ const EstimateSection = () => {
 
                     {/* 검색 버튼 */}
                     <button
-                        onClick={analyzePhone}
-                        disabled={isAnalyzing || !frontImage || !backImage}
+                        onClick={estimatePhone}
+                        disabled={isEstimateButtonDisabled()}
                         style={{
                             width: '100%',
-                            background: (!frontImage || !backImage || isAnalyzing)
+                            background: isEstimateButtonDisabled()
                                 ? '#94a3b8'
                                 : 'linear-gradient(135deg, #667eea, #764ba2)',
                             color: 'white',
@@ -640,7 +737,7 @@ const EstimateSection = () => {
                             padding: '16px',
                             borderRadius: '12px',
                             border: 'none',
-                            cursor: (!frontImage || !backImage || isAnalyzing) ? 'not-allowed' : 'pointer',
+                            cursor: (isEstimateButtonDisabled()) ? 'not-allowed' : 'pointer',
                             fontSize: '16px',
                             transition: 'all 0.2s ease'
                         }}

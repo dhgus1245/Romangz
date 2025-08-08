@@ -17,7 +17,8 @@ const MainSection = ({scrollToSection}) => (
         {/* 24h OPEN 네온 사인 */}
         <div style={{
             marginBottom: '40px',
-            position: 'relative'
+            position: 'relative',
+            marginTop: '200px'
         }}>
             <div style={{
                 width: 'clamp(150px, 25vw, 200px)',

@@ -27,18 +27,18 @@ public class PbtiTest {
     @Column(name = "pt_desc")
     private String desc;
 
-    @Column(name = "pt_phone_str")
-    private String phone_str;
+    @Column(name = "pt_pm_idx_str")
+    private String idx_str;
 
     // 기본 생성자
     public PbtiTest() {}
 
-    public PbtiTest(String code, String code_nm, String color, String img, String desc, String phone_str) {
+    public PbtiTest(String code, String code_nm, String color, String img, String desc, String idx_str) {
         this.code = code;
         this.code_nm = code_nm;
         this.color = color;
         this.img = img;
         this.desc = desc;
-        this.phone_str = phone_str;
+        this.idx_str = idx_str;
     }
 }

@@ -14,9 +14,9 @@ public interface PbtiTestRepository extends JpaRepository<PbtiTest, Long> {
     @Query(value =
         "SELECT pm_idx, pm_model, pm_model_ko, pm_img " +
         "FROM phone_model " +
-        "WHERE POSITION('^' || pm_model_ko || '^' IN :phoneStr) > 0 ",
+        "WHERE POSITION('^' || pm_idx || '^' IN :idxStr) > 0 ",
         nativeQuery = true)
-    List<Object[]> getPbtiPhoneByRaw(@Param("phoneStr") String phoneStr);
+    List<Object[]> getPbtiPhoneByRaw(@Param("idxStr") String idxStr);
 
 }
 

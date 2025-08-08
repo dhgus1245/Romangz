@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,13 +16,15 @@ public class FlaskClientService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public Map<String, Object> sendPathsToFlask(String frontPath, String backPath) {
+    public Map<String, Object> sendPathsToFlask(Map<String, String> flaskJson) {
         String flaskUrl = "http://192.168.16.1:5000/phone/api/grade";
 
-        Map<String, String> payload = Map.of(
-                "front", frontPath,
-                "back", backPath
-        );
+        // 모든 값 포함해서 payload 생성
+        Map<String, String> payload = new HashMap<>();
+        payload.put("front_path", flaskJson.get("frontPath"));
+        payload.put("back_path", flaskJson.get("backPath"));
+        payload.put("model", flaskJson.get("model"));
+        payload.put("volume", flaskJson.get("volume"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -42,4 +43,3 @@ public class FlaskClientService {
         }
     }
 }
-

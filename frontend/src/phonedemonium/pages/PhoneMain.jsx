@@ -19,33 +19,55 @@ const dummyPhones = [
 ];
 
 const SmartphonePlatform = () => {
-    // const [currentSection, setCurrentSection] = useState('main');
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // ✅ 여기에 위치해야 함
     const [showPopup, setShowPopup] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    const isMobile = window.innerWidth <= 768;
     const filteredPhones = dummyPhones.filter(phone =>
-      phone.name.toLowerCase().includes(searchTerm.toLowerCase())
+        phone.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const scrollToSection = (section) => {
-        // setCurrentSection(section);
-        document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const backgroundStyles = {
+        pc: {
+            background: `
+            linear-gradient(rgba(16, 10, 46, 0.6), rgba(26, 35, 126, 0.5), rgba(57, 73, 171, 0.4)),
+            url('/image/phone/background.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed'
+        },
+        mobile: {
+            background: 'linear-gradient(135deg, #0a0a2e 0%, #16213e 25%, #1a237e 50%, #3949ab 75%, #5c6bc0 100%)'
+        }
     };
 
     useEffect(() => {
         if (isMobile) {
             const interval = setInterval(() => {
                 setCurrentSlide((prev) => (prev + 1) % filteredPhones.length);
-                }, 3000); // 3초마다 자동 슬라이드
+            }, 3000);
             return () => clearInterval(interval);
         }
     }, [filteredPhones.length, isMobile]);
 
+    const scrollToSection = (section) => {
+        document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     return (
         <div style={{minHeight: '100vh',
-            background: 'linear-gradient(135deg, #0a0a2e 0%, #16213e 25%, #1a237e 50%, #3949ab 75%, #5c6bc0 100%)',
+            ...(isMobile ? backgroundStyles.mobile : backgroundStyles.pc),
             position: 'relative',
             overflow: 'hidden',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'}}>

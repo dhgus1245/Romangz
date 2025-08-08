@@ -179,7 +179,7 @@ const PbtiSection = () => {
         try {
             const response = await fetch(`http://192.168.16.1:8080/phone/pbti?pcode=${encodeURIComponent(resultCode)}`);
             const result = await response.json();
-            // console.log(result);
+            console.log(result);
             return result;
         } catch (e) {
             console.error("PBTI 결과 가져오기 실패:", e);
@@ -298,8 +298,8 @@ const PbtiSection = () => {
 
                         {/* 이미지 컨테이너 - 통일된 크기 */}
                         <div style={{
-                            width: window.innerWidth <= 768 ? '150px' : '200px',
-                            height: window.innerWidth <= 768 ? '120px' : '150px',
+                            width: window.innerWidth <= 768 ? '150px' : '250px',
+                            height: window.innerWidth <= 768 ? '150px' : '250px',
                             margin: '0 auto 15px',
                             borderRadius: '15px',
                             overflow: 'hidden',
@@ -460,7 +460,18 @@ const PbtiSection = () => {
                             color: '#333',
                             lineHeight: '1.5'
                         }}>
-                            {result.pbti.desc}
+                            <div
+                                style={{
+                                    background: 'white',
+                                    padding: '15px 20px',
+                                    borderRadius: '10px',
+                                    margin: '8px 0',
+                                    fontSize: window.innerWidth <= 768 ? '13px' : '14px',
+                                    color: '#333',
+                                    lineHeight: '1.5',
+                                }}
+                                dangerouslySetInnerHTML={{ __html: result.pbti.desc}}
+                            ></div>
                         </div>
                     </div>
 
@@ -492,7 +503,7 @@ const PbtiSection = () => {
                                         background: '#f8f9fa'
                                     }}>
                                         <SafeImage
-                                            src={img ? `/image/phone/${img}` : undefined}
+                                            src={img ? `/image/phone/model/${img}` : undefined}
                                             alt={modelKo}
                                             fallback="/image/phone/error.jpg"
                                             style={{
