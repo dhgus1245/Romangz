@@ -1,5 +1,6 @@
 package com.romangz.repository.phone;
 
+import com.romangz.entity.phone.EstimatedPhone;
 import com.romangz.entity.phone.PhoneModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,10 +18,10 @@ public interface PhoneModelRepository extends JpaRepository<PhoneModel, Long> {
 
     //휴대폰 분석 메뉴 - 시리즈
     @Query(value =
-            "SELECT (ROW_NUMBER() OVER()) AS rownum, pm_serise " +
-            "FROM phone_model WHERE pm_com_idx = :value " +
-            "GROUP BY pm_serise " +
-            "ORDER BY COUNT(pm_serise) DESC ", nativeQuery = true)
+        "SELECT (ROW_NUMBER() OVER()) AS rownum, pm_serise " +
+        "FROM phone_model WHERE pm_com_idx = :value " +
+        "GROUP BY pm_serise " +
+        "ORDER BY COUNT(pm_serise) DESC ", nativeQuery = true)
     List<Object[]> getEstiamteMenuSeries(@Param("value") int value);
 
     //휴대폰 분석 메뉴 - 모델
@@ -32,7 +33,18 @@ public interface PhoneModelRepository extends JpaRepository<PhoneModel, Long> {
     //휴대폰 분석 메뉴 - 용량
     @Query(value =
         "SELECT pmd_volume " +
-        "FROM phone_model_dtl WHERE pmd_idx = :value ORDER BY pmd_price ASC", nativeQuery = true)
+        "FROM phone_model_dtl WHERE pmd_pm_idx = :value ORDER BY pmd_price ASC", nativeQuery = true)
     List<Object[]> getEstiamteMenuVolume(@Param("value") int value);
+
+    //휴대폰 모델 평균
+    @Query(value =
+        "SELECT " +
+            "ROUND(AVG(rp_price) FILTER (WHERE rp_regrade = 'A') / 1000.0) * 1000 AS avg_A, " +
+            "ROUND(AVG(rp_price) FILTER (WHERE rp_regrade = 'B') / 1000.0) * 1000 AS avg_B, " +
+            "ROUND(AVG(rp_price) FILTER (WHERE rp_regrade = 'C') / 1000.0) * 1000 AS avg_C, " +
+            "ROUND(AVG(rp_price) FILTER (WHERE rp_regrade = 'X') / 1000.0) * 1000 AS avg_X " +
+        "FROM real_price " +
+        "WHERE rp_pm_idx = :model AND rp_capacity = :volume", nativeQuery = true)
+    List<Object[]> getModelPriceAvg(@Param("model") int model, @Param("volume") String volume);
 }
 

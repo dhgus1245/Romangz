@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-const GalaxyAppleBackground = () => {
+const GalaxyAppleBackground = ({isMobile}) => {
     // 불규칙한 별들 생성
     const [stars, setStars] = useState([]);
 

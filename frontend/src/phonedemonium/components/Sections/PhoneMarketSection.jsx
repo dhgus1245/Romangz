@@ -1,237 +1,217 @@
-import React, {useState} from 'react';
-import {Battery, Cpu, Heart, Search, Smartphone} from 'lucide-react';
+import React, { useState } from 'react';
+import { AreaChart, Area, YAxis, ResponsiveContainer, ReferenceLine } from 'recharts';
 
-const PhoneMarketSection = ({}) => {
+const ChartVariations = () => {
+    const [data] = useState([[9,11,13,9,10,11],[12,7,10,8,9]]);
 
-    // 가상 휴대폰 데이터
-    const phoneData = [
-        {
-            id: 1,
-            brand: 'Samsung',
-            model: 'Galaxy S23 Ultra',
-            price: 850000,
-            condition: 'A급',
-            image: '📱',
-            specs: { ram: '12GB', storage: '256GB', battery: '5000mAh' }
-        },
-        {
-            id: 2,
-            brand: 'Apple',
-            model: 'iPhone 14 Pro',
-            price: 1200000,
-            condition: 'S급',
-            image: '📱',
-            specs: { ram: '6GB', storage: '128GB', battery: '3200mAh' }
-        },
-        {
-            id: 3,
-            brand: 'Samsung',
-            model: 'Galaxy Z Fold 4',
-            price: 1500000,
-            condition: 'A급',
-            image: '📱',
-            specs: { ram: '12GB', storage: '512GB', battery: '4400mAh' }
-        },
-        {
-            id: 4,
-            brand: 'Apple',
-            model: 'iPhone 13',
-            price: 700000,
-            condition: 'B급',
-            image: '📱',
-            specs: { ram: '4GB', storage: '128GB', battery: '3240mAh' }
-        }
-    ];
+    // 데이터를 자연스럽게 연결되는 차트 형식으로 변환
+    const transformData = (prevData, predictData) => {
+        // 이전 데이터 (마지막 점 제외)
+        const historicalData = prevData.slice(0, -1).map((value, index) => ({
+            index,
+            historicalValue: value,
+            predictionValue: null
+        }));
 
-    //검색
-    const [searchTerm, setSearchTerm] = useState('');
-    // const [selectedPhone, setSelectedPhone] = useState(null);
+        // 연결점 - 이전 데이터의 마지막 점
+        const connectionPoint = {
+            index: prevData.length - 1,
+            historicalValue: prevData[prevData.length - 1],
+            predictionValue: prevData[prevData.length - 1]
+        };
 
-    const filteredPhones = phoneData.filter(phone =>
-        phone.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        phone.brand.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+        // 예측 데이터
+        const predictionData = predictData.map((value, index) => ({
+            index: prevData.length + index,
+            historicalValue: null,
+            predictionValue: value
+        }));
 
+        return [...historicalData, connectionPoint, ...predictionData];
+    };
 
+    const chartData = transformData(data[0], data[1]);
+    const separationIndex = data[0].length - 0.5;
+
+    const renderChart = () => {
+        return (
+            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <defs>
+                    {/* 이전 데이터용 그라데이션 */}
+                    <linearGradient id="historicalGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.4}/>
+                        <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                    </linearGradient>
+                    {/* 예측 데이터용 그라데이션 */}
+                    <linearGradient id="predictionGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#EAB308" stopOpacity={0.4}/>
+                        <stop offset="100%" stopColor="#EAB308" stopOpacity={0.1}/>
+                    </linearGradient>
+                </defs>
+
+                <YAxis
+                    tickFormatter={(value) => `${value}만원`}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                />
+
+                <ReferenceLine
+                    x={separationIndex}
+                    stroke="#E5E7EB"
+                    strokeDasharray="3 3"
+                    strokeWidth={2}
+                />
+
+                {/* 이전 데이터 영역 */}
+                <Area
+                    type="monotone"
+                    dataKey="historicalValue"
+                    stroke="#3B82F6"
+                    strokeWidth={3}
+                    fill="url(#historicalGradient)"
+                    connectNulls={false}
+                />
+
+                {/* 예측 데이터 영역 */}
+                <Area
+                    type="monotone"
+                    dataKey="predictionValue"
+                    stroke="#EAB308"
+                    strokeWidth={3}
+                    strokeDasharray="8 4"
+                    fill="url(#predictionGradient)"
+                    connectNulls={false}
+                />
+            </AreaChart>
+        );
+    };
 
     return (
-        <section id="phones" style={{
+        <section style={{
             minHeight: '100vh',
-            padding: '60px 20px'
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px'
         }}>
             <div style={{
-                maxWidth: '1200px',
-                margin: '0 auto'
+                maxWidth: '800px',
+                width: '100%',
+                background: 'rgba(255, 255, 255, 0.95)',
+                borderRadius: '24px',
+                padding: '40px',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
             }}>
-                <h2 style={{
-                    fontSize: '36px',
-                    color: 'white',
-                    marginBottom: '30px',
-                    textAlign: 'center',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '15px'
-                }}>
-                    <Smartphone size={36}/>
-                    스마트폰 마켓플레이스
-                </h2>
-
-                {/* 검색바 */}
                 <div style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: '20px',
-                    padding: '20px',
-                    marginBottom: '30px',
-                    border: '1px solid rgba(255,255,255,0.2)'
+                    width: '100%',
+                    maxWidth: '1200px',
+                    margin: '0 auto',
+                    padding: '24px',
+                    background: 'linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%)',
+                    borderRadius: '16px',
+                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    fontFamily: 'system-ui, -apple-system, sans-serif'
                 }}>
-                    <div style={{position: 'relative', maxWidth: '500px', margin: '0 auto'}}>
-                        <Search
-                            size={20}
-                            style={{
-                                position: 'absolute',
-                                left: '15px',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                color: '#666'
-                            }}
-                        />
-                        <input
-                            type="text"
-                            placeholder="브랜드, 모델명으로 검색하세요..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{
-                                width: '100%',
-                                padding: '15px 15px 15px 50px',
-                                fontSize: '16px',
-                                border: 'none',
-                                borderRadius: '25px',
-                                background: 'white',
-                                outline: 'none'
-                            }}
-                        />
+                    {/* 헤더 */}
+                    <div style={{ marginBottom: '24px' }}>
+                        <h2 style={{
+                            fontSize: '32px',
+                            fontWeight: 'bold',
+                            color: '#1f2937',
+                            margin: '0 0 8px 0'
+                        }}>
+                            휴대폰 가격 예측 차트
+                        </h2>
+                        <p style={{
+                            color: '#6b7280',
+                            margin: 0
+                        }}>
+                            과거 데이터와 미래 예측을 연결한 시각화
+                        </p>
                     </div>
-                </div>
 
-                {/* 휴대폰 목록 */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '25px'
-                }}>
-                    {filteredPhones.map((phone) => (
-                        <div
-                            key={phone.id}
-                            style={{
-                                background: 'rgba(255,255,255,0.1)',
-                                backdropFilter: 'blur(10px)',
-                                borderRadius: '20px',
-                                padding: '25px',
-                                border: '1px solid rgba(255,255,255,0.2)',
-                                transition: 'transform 0.3s ease',
-                                cursor: 'pointer'
-                            }}
-                            onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-                            onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                        >
-                            <div style={{
-                                fontSize: '60px',
-                                textAlign: 'center',
-                                marginBottom: '15px'
+                    {/* 차트 영역 */}
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        padding: '24px',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '16px',
+                            flexWrap: 'wrap',
+                            gap: '16px'
+                        }}>
+                            <h3 style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                color: '#1f2937',
+                                margin: 0
                             }}>
-                                {phone.image}
-                            </div>
+                                휴대폰 가격 변화 추이
+                            </h3>
 
-                            <div style={{color: 'white', textAlign: 'center'}}>
-                                <h3 style={{fontSize: '20px', marginBottom: '8px', fontWeight: 'bold'}}>
-                                    {phone.model}
-                                </h3>
-                                <p style={{fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginBottom: '15px'}}>
-                                    {phone.brand}
-                                </p>
-
+                            {/* 범례 */}
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px',
+                                flexWrap: 'wrap'
+                            }}>
                                 <div style={{
-                                    background: phone.condition === 'S급' ? '#ff6b6b' :
-                                        phone.condition === 'A급' ? '#4ecdc4' : '#45b7d1',
-                                    color: 'white',
-                                    padding: '6px 15px',
-                                    borderRadius: '15px',
-                                    display: 'inline-block',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
-                                    marginBottom: '15px'
-                                }}>
-                                    {phone.condition}
-                                </div>
-
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-around',
-                                    marginBottom: '15px',
-                                    fontSize: '12px',
-                                    color: 'rgba(255,255,255,0.8)'
-                                }}>
-                                    <div>
-                                        <Cpu size={16} style={{marginBottom: '4px'}}/>
-                                        <div>{phone.specs.ram}</div>
-                                    </div>
-                                    <div>
-                                        <Smartphone size={16} style={{marginBottom: '4px'}}/>
-                                        <div>{phone.specs.storage}</div>
-                                    </div>
-                                    <div>
-                                        <Battery size={16} style={{marginBottom: '4px'}}/>
-                                        <div>{phone.specs.battery}</div>
-                                    </div>
-                                </div>
-
-                                <div style={{
-                                    fontSize: '24px',
-                                    fontWeight: 'bold',
-                                    color: '#4ecdc4',
-                                    marginBottom: '15px'
-                                }}>
-                                    ₩{phone.price.toLocaleString()}
-                                </div>
-
-                                <button style={{
-                                    background: 'linear-gradient(45deg, #ff6b6b, #ff8e53)',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '12px 25px',
-                                    borderRadius: '20px',
-                                    fontSize: '14px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    width: '100%',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
                                     gap: '8px'
                                 }}>
-                                    <Heart size={16}/>
-                                    관심상품 담기
-                                </button>
+                                    <div style={{
+                                        width: '16px',
+                                        height: '4px',
+                                        borderRadius: '2px',
+                                        backgroundColor: '#3b82f6'
+                                    }}></div>
+                                    <span style={{
+                                        fontSize: '14px',
+                                        color: '#6b7280'
+                                    }}>과거 데이터</span>
+                                </div>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}>
+                                    <div style={{
+                                        width: '16px',
+                                        height: '4px',
+                                        borderRadius: '2px',
+                                        background: 'repeating-linear-gradient(to right, #eab308 0px, #eab308 6px, transparent 6px, transparent 10px)'
+                                    }}></div>
+                                    <span style={{
+                                        fontSize: '14px',
+                                        color: '#6b7280'
+                                    }}>예측 데이터</span>
+                                </div>
                             </div>
                         </div>
-                    ))}
-                </div>
 
-                {filteredPhones.length === 0 && (
-                    <div style={{
-                        textAlign: 'center',
-                        color: 'rgba(255,255,255,0.7)',
-                        fontSize: '18px',
-                        marginTop: '50px'
-                    }}>
-                        검색 결과가 없습니다. 다른 키워드로 검색해보세요.
+                        <div style={{
+                            height: '320px',
+                            width: '100%'
+                        }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                {renderChart()}
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                )}
+                </div>
             </div>
         </section>
     );
 };
 
-export default PhoneMarketSection;
+export default ChartVariations;
