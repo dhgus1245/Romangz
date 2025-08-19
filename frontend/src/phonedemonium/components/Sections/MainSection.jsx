@@ -47,17 +47,23 @@ const MainSection = ({scrollToSection, isMobile, styles})  => {
                             onClick={handleStartPlay}
                             style={{
                                 position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                background: "rgba(0,0,0,0.1)", // 클릭 영역 시각적으로 표시하고 싶으면
                                 cursor: "pointer",
-                                zIndex: 2
+                                zIndex: 2,
+                                opacity: 1
                             }}
                         >
                             <img
                                 src="/image/phone/play_cat.png"
                                 alt="play_cat"
-                                style={{ width: "80px", height: "80px" }}
+                                style={{width: "80px", height: "80px"}}
                             />
                         </div>
                     )}
