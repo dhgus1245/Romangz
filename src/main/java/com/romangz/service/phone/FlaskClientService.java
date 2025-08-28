@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +17,14 @@ public class FlaskClientService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    @Value("${flask.api.url}")
+    private String flaskBaseUrl;
+
     public Map<String, Object> sendPathsToFlask(Map<String, String> flaskJson) {
-        String flaskUrl = "http://192.168.16.1:5000/phone/api/grade";
+
+        String flaskUrl = flaskBaseUrl + "phone/api/grade";
+        System.out.println("우아아아 :" +flaskUrl);
+//        String flaskUrl = "http://phonezipsa.com:5000/phone/api/grade";
 
         // 모든 값 포함해서 payload 생성
         Map<String, String> payload = new HashMap<>();

@@ -78,25 +78,40 @@ const SmartphonePlatform = () => {
     });
     
     return (
-        <div style={{minHeight: '100vh',
+        <div style={{
+            minHeight: '100vh',
             ...(isMobile ? backgroundStyles.mobile : backgroundStyles.pc),
             position: 'relative',
             overflow: 'hidden',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'}}>
-            <GalaxyAppleBackground isMobile={isMobile} />
-            <MainSection scrollToSection={scrollToSection} isMobile={isMobile} styles={styles} />
-            <EstimateSection scrollToSection={scrollToSection} setModalAlert={setModalAlert} isMobile={isMobile} styles={styles} />
-            <PbtiSection scrollToSection={scrollToSection} isMobile={isMobile} styles={styles} />
-            {/*<PhoneMarketSection/>*/}
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}>
+            <GalaxyAppleBackground isMobile={isMobile}/>
+            <MainSection scrollToSection={scrollToSection} isMobile={isMobile} styles={styles}/>
+            <EstimateSection scrollToSection={scrollToSection} setModalAlert={setModalAlert} isMobile={isMobile}
+                             styles={styles}/>
+            <PbtiSection scrollToSection={scrollToSection} isMobile={isMobile} styles={styles}/>
             <ModalAlert
                 isMobile={isMobile}
-                setIsMobile = {setIsMobile}
+                setIsMobile={setIsMobile}
                 isOpen={modalAlert.isOpen}
-                onClose={() => setModalAlert(prev => ({ ...prev, isOpen: false }))}
+                onClose={() => setModalAlert(prev => ({...prev, isOpen: false}))}
                 type={modalAlert.type}
                 title={modalAlert.title}
                 message={modalAlert.message}
             />
+            <footer style={{
+                textAlign: 'center',
+                fontSize: '12px',
+                color: '#fff',
+                marginTop: '40px',
+                paddingBottom: '20px',
+                background: 'transparent',
+                opacity: '0.7',
+                transition: 'opacity 0.3s ease',
+                fontWeight: '300'
+            }}>
+                CREATED BY TEAM 2 (KJH, KDY, KYG, OHS, LSG)
+            </footer>
         </div>
     );
 };

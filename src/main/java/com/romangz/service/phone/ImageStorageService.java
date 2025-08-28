@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public class ImageStorageService {
 
-    private static final String BASE_DIR = "C:/ITWILL/final_project/image/estimate";
+    private static final String BASE_DIR = "/app/data/images/estimate";
 
     public String saveImage(MultipartFile file, String type) throws IOException {
         // type은 "front" 또는 "end"
